@@ -41,14 +41,12 @@ def register():
 	print("\t\tAccount Registration")
 	print("\t\t====================")
 	while True:
-		try:
-			NewName = input("\tEnter your name in capital letter: ")
-		except:
-			print("\t\nThat's a wrong key.")
+		NewName = input("\tEnter your name in capital letter: ")
 
+		if NewName != NewName.upper() and NewName != NewName.isalpha():
+			print("\tPlease enter your name in all capital letter and alphabet only! :-)\n")
 		else:
-			if NewName != NewName.upper() and NewName != NewName.isalpha():
-				print("\tPlease enter your name in all capital letter and alphabet only! :-)\n")
+			break
 
 		#check if the name is already registered
 		with open(FILE_NAME, 'r') as file:
