@@ -41,10 +41,14 @@ def register():
 	print("\t\tAccount Registration")
 	print("\t\t====================")
 	while True:
-		NewName = input("\tEnter your name in capital letter: ")
+		try:
+			NewName = input("\tEnter your name in capital letter: ")
+		except:
+			print("\t\nThat's a wrong key.")
 
-		if NewName != NewName.upper() and NewName != NewName.isalpha():
-			print("\tPlease enter your name in all capital letter and alphabet only! :-)\n")
+		else:
+			if NewName != NewName.upper() and NewName != NewName.isalpha():
+				print("\tPlease enter your name in all capital letter and alphabet only! :-)\n")
 
 		#check if the name is already registered
 		with open(FILE_NAME, 'r') as file:
@@ -62,25 +66,38 @@ def register():
 
 	
 	while True:
-		NewPass = getpass.getpass("\tEnter new Passwordi: ")
-		PassLen = len(NewPass)
-		if PassLen < 8:
-			print("\tPassword cannot less than 8 characters!\n ")
+		try:
+			NewPass = getpass.getpass("\tEnter new Passwordi: ")
+		except:
+			print("\t\nThat's a wrong key.")
 		else:
-			break
+			PassLen = len(NewPass)
+			if PassLen < 8:
+				print("\tPassword cannot less than 8 characters!\n ")
+			else:
+				break
 
 	while True:
-		ConfPass = getpass.getpass("\tConfirm Password: ")
-		if ConfPass == NewPass:
-			break
+		try:
+			ConfPass = getpass.getpass("\tConfirm Password: ")
+		except:
+			print("\n\tThat's a wrong key.")
 		else:
-			print("\tPassword does not match!\n")
+			if ConfPass == NewPass:
+				break
+			else:
+				print("\tPassword does not match!\n")
+
 	while True:
-		NewEmail = input("\tEmail: ")
-		if '@' not in NewEmail:
-			print("\tThat's not a correct email format!\n  ")
+		try:
+			NewEmail = input("\tEmail: ")
+		except:
+			print("\n\tThat's a wrong key.")
 		else:
-			break
+			if '@' not in NewEmail:
+				print("\tThat's not a correct email format!\n  ")
+			else:
+				break
 	
 	#take the generated id as patient's id
 	NewID = generate_id()
@@ -157,8 +174,9 @@ def user_session(user):
 		#error handler if user enter anything other than integer
 		try:
 			choice = int(input("\tPick a number from the list to perform action: "))
+			print("\n")
 		except:
-			print("Please enter what's inside the menu.")
+			print("\n\tPlease enter what's inside the menu.\n")
 
 		else:
 			match choice:
@@ -167,6 +185,9 @@ def user_session(user):
 					menu()
 				case 2:
 					view_appointment(user)
+					menu()
+				case 3 :
+					search_appointment(user)
 					menu()
 				case 4:
 					view_profile(user)
@@ -177,7 +198,7 @@ def user_session(user):
 					break
 					
 				case _:
-					print("\n\tInvalid option!\n")
+					print("\tInvalid option!\n")
 		
 					
 def reservation_id_generator(user):
@@ -212,12 +233,16 @@ def book_appointment(user):
 	print("\t\tPlease enter a date to book: ")
 	#loop to get reservation date from user
 	while True:
-		Day = int(input("\t\tDD: "))
-		Month = int(input("\t\tMM: "))
-		Year = (input("\t\tYYYY: "))
-		if (Day > 31 or Day < 0) or (Month > 12 or Month <=0) or (len(Year) != 4):
-			print("\t\tInvalid date, please enter again!")
-			continue
+		try:
+			Day = int(input("\t\tDD: "))
+			Month = int(input("\t\tMM: "))
+			Year = (input("\t\tYYYY: "))
+		except:
+			print("\n\tThat's a wrong key")
+		else:
+			if (Day > 31 or Day < 0) or (Month > 12 or Month <=0) or (len(Year) != 4):
+				print("\t\tInvalid date, please enter again!")
+				continue
 
 		#open file as read
 		with open(APPT_FILE, 'r') as file:
@@ -249,11 +274,15 @@ def book_appointment(user):
 	package_menu()
 	#loop to get package from user
 	while True:
-		Package = input("\tPlease select a package: ")
-		if Package != 'a' and Package != 'b':
-			print("\t\tInvalid Input, please select again!")
+		try:
+			Package = input("\tPlease select a package: ")
+		except:
+			print("\n\tThat's a wrong key.")
 		else:
-			break
+			if Package != 'a' and Package != 'b':
+				print("\t\tInvalid Input, please select again!")
+			else:
+				break
 			
 
 	print("\t\tBooking succesfull!")
@@ -295,7 +324,7 @@ def view_appointment(user):
 		print("\t\tType         : ", Appt[5])
 		print("\n")
 
-	delete = input("Do you want to cancel a reservation? [y/n]").lower()
+	delete = input("\tDo you want to cancel a reservation? [y/n]").lower()
 
 	if delete == 'y' or delete == 'yes':
 		cancel_appointment(user, Appointments)
@@ -312,13 +341,13 @@ def cancel_appointment(user ,Appointments):
 		available_ids.append(Appt[0])
 
 	while True:
-		remover = input("\nEnter a reservation ID you want to remove: ")
+		remover = input("\n\tEnter a reservation ID you want to remove: ")
 
 		if remover not in available_ids:
-			print("Please select available ID.")
+			print("\n\tPlease select available ID.")
 			continue
 
-		confirm = input("Are you sure? [y/n]: ").lower()
+		confirm = input("\tAre you sure? [y/n]: ").lower()
 		if confirm == 'n':
 			break
 
@@ -337,6 +366,46 @@ def cancel_appointment(user ,Appointments):
 
 		break
 
+def search_appointment(user):
+	
+	exist = True
+	with open(APPT_FILE, 'r') as file:
+		reader = list(csv.reader(file))
+		
+		if len(reader) <= 1:
+			print("\tThere's no Appointment yet, please make 1. :) ")
+			exist = False
+			return
+
+		while exist:
+			try:
+				searcher = input("\tPlease Enter reservation ID: ")
+				not_found = True
+				search_result = []
+			except:
+				print("That's a wrong key!")
+
+			else:
+				for row in reader[1:]:
+					if row[0] == searcher:
+						search_result.append(row)
+						not_found = False
+				if not_found:
+					print("\n\tThe reservation ID was not in the record. :(\n")
+				else:
+					break
+
+	print("\n\t==========RESERVATIONS==========")
+	for Appt in search_result:
+		print("\tReservationID: ",Appt[0])
+		print("\tUserID       : ",Appt[1])
+		print("\tName         : ",Appt[2])
+		print("\tDate         : ",Appt[3])
+		print("\tTime         : ",Appt[4])
+		print("\tPackage      : ",Appt[5])
+		print("\n")
+
+	print("\t================================\n")
 
 		
 
